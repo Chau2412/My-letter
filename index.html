@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f8eee7">
+  <title>Một lá thư dành cho bạn 💌</title>
+  <style>
+    :root {
+      --paper: #fffaf3;
+      --cream: #f8eee7;
+      --rose: #d98e91;
+      --rose-dark: #a95766;
+      --ink: #60464a;
+      --muted: #9b7778;
+      --envelope: #e8b9b2;
+      --envelope-dark: #d99b9b;
+      --shadow: 0 22px 55px rgba(111, 65, 65, .16);
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: grid;
+      place-items: center;
+      padding: 28px 16px 38px;
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      background:
+        radial-gradient(ellipse at 15% 15%, rgba(255,255,255,.9), transparent 34%),
+        radial-gradient(ellipse at 90% 80%, rgba(231,190,180,.32), transparent 32%),
+        var(--cream);
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .16;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+      z-index: -1;
+    }
+
+    .page {
+      width: min(100%, 560px);
+      text-align: center;
+      position: relative;
+    }
+
+    .eyebrow {
+      font: 11px/1.5 Arial, sans-serif;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 13px;
+    }
+
+    h1 {
+      font-size: clamp(30px, 7vw, 43px);
+      font-weight: normal;
+      line-height: 1.12;
+      margin: 0;
+      color: #86535a;
+    }
+
+    .intro {
+      margin: 13px auto 0;
+      max-width: 340px;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #9a7778;
+    }
+
+    .scene {
+      position: relative;
+      height: 360px;
+      margin: 22px auto 0;
+      display: grid;
+      place-items: center;
+      perspective: 1000px;
+    }
+
+    .envelope-wrap {
+      position: relative;
+      width: min(88vw, 360px);
+      height: 230px;
+      margin-top: 35px;
+      filter: drop-shadow(0 18px 17px rgba(119, 73, 74, .13));
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+
+    .envelope-wrap:focus-visible {
+      outline: 3px solid #b36b78;
+      outline-offset: 10px;
+      border-radius: 12px;
+    }
+
+    .envelope-back {
+      position: absolute;
+      inset: 0;
+      border-radius: 7px;
+      background: #e2aaa8;
+    }
+
+    .letter {
+      position: absolute;
+      z-index: 2;
+      left: 7%;
+      width: 86%;
+      height: 87%;
+      top: 5%;
+      padding: 23px 18px;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(255,255,255,.42), rgba(255,255,255,.42)),
+        repeating-linear-gradient(0deg, transparent 0 27px, rgba(185,145,130,.10) 28px 29px),
+        var(--paper);
+      border: 1px solid rgba(176, 130, 119, .25);
+      box-shadow: 0 5px 18px rgba(95, 57, 58, .10);
+      transition: transform 1s cubic-bezier(.2,.75,.2,1), height 1s ease, top 1s ease;
+      transform: translateY(0);
+      text-align: left;
+    }
+
+    .letter-inner {
+      opacity: .95;
+      transition: opacity .5s ease .3s;
+    }
+
+    .letter-top {
+      font-size: 11px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #b17d7b;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .letter h2 {
+      font-size: 24px;
+      font-weight: normal;
+      color: #965c64;
+      text-align: center;
+      margin: 0 0 12px;
+    }
+
+    .letter p {
+      font-size: 13px;
+      line-height: 1.7;
+      margin: 0 0 10px;
+      white-space: pre-line;
+    }
+
+    .letter .signature {
+      text-align: right;
+      font-style: italic;
+      color: #965c64;
+      margin-top: 12px;
+    }
+
+    .front-pocket {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      overflow: hidden;
+      border-radius: 7px;
+      background: var(--envelope);
+      clip-path: polygon(0 0, 50% 54%, 100% 0, 100% 100%, 0 100%);
+      transition: opacity .5s ease .45s;
+    }
+
+    .front-pocket::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.12), transparent 55%);
+    }
+
+    .flap {
+      position: absolute;
+      z-index: 5;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 62%;
+      transform-origin: top center;
+      transform: rotateX(0deg);
+      transition: transform .75s ease, z-index 0s .35s;
+      background: var(--envelope-dark);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      backface-visibility: visible;
+    }
+
+    .seal {
+      position: absolute;
+      z-index: 6;
+      left: 50%;
+      top: 48%;
+      transform: translate(-50%, -50%);
+      width: 47px;
+      height: 47px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #b86473;
+      color: #fff2e9;
+      font-size: 22px;
+      box-shadow: 0 3px 7px rgba(107, 55, 65, .23), inset 0 0 0 2px rgba(255,255,255,.2);
+      transition: opacity .3s ease, transform .4s ease;
+    }
+
+    .envelope-wrap.open .flap {
+      transform: rotateX(180deg);
+      z-index: 1;
+    }
+
+    .envelope-wrap.open .seal {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(.6);
+    }
+
+    .envelope-wrap.open .front-pocket { opacity: .15; }
+    .envelope-wrap.open .letter {
+      top: -53%;
+      height: 150%;
+      transform: translateY(-2px);
+      overflow-y: auto;
+      z-index: 7;
+      transition-delay: .25s;
+    }
+
+    .envelope-wrap.open .letter-inner { opacity: 1; }
+
+    .hint {
+      margin: -2px 0 0;
+      font: 12px/1.5 Arial, sans-serif;
+      letter-spacing: .08em;
+      color: #a77e7d;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid #d8a4a2;
+      border-radius: 999px;
+      padding: 12px 20px;
+      background: rgba(255,250,243,.7);
+      color: #8e5960;
+      font: 13px Arial, sans-serif;
+      letter-spacing: .04em;
+      cursor: pointer;
+      transition: transform .2s ease, background .2s ease;
+    }
+
+    button:hover { transform: translateY(-2px); background: #fffaf3; }
+    button:focus-visible { outline: 3px solid #b36b78; outline-offset: 3px; }
+    .primary { background: #bd7780; color: #fffaf3; border-color: #bd7780; }
+    .primary:hover { background: #a9626c; }
+
+    .footer {
+      margin: 25px 0 0;
+      font-size: 12px;
+      color: #b18d8b;
+      letter-spacing: .04em;
+    }
+
+    .floating-heart {
+      position: fixed;
+      bottom: -35px;
+      color: #d58d98;
+      opacity: 0;
+      pointer-events: none;
+      animation: floatUp 5s ease-in forwards;
+      z-index: 10;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) rotate(0deg) scale(.7); opacity: 0; }
+      12% { opacity: .65; }
+      85% { opacity: .55; }
+      100% { transform: translateY(-110vh) rotate(28deg) scale(1.2); opacity: 0; }
+    }
+
+    @media (max-width: 420px) {
+      .scene { height: 335px; }
+      .envelope-wrap { height: 205px; }
+      .envelope-wrap.open .letter { top: -62%; height: 164%; }
+      .letter { padding: 18px 15px; }
+      .letter h2 { font-size: 21px; }
+      .letter p { font-size: 12px; line-height: 1.65; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <main class="page">
+    <p class="eyebrow">sealed with love · mở khi bạn sẵn sàng</p>
+    <h1>Một lá thư dành cho bạn</h1>
+    <p class="intro">Có vài điều mình muốn gửi đến bạn,<br>được gói lại trong chiếc phong bì nhỏ này.</p>
+
+    <section class="scene" aria-label="Phong bì thư tương tác">
+      <div class="envelope-wrap" id="envelope" role="button" tabindex="0" aria-label="Nhấn để mở lá thư" aria-expanded="false">
+        <div class="envelope-back"></div>
+
+        <article class="letter" aria-label="Nội dung lá thư">
+          <div class="letter-inner">
+            <div class="letter-top">a little note for you</div>
+            <h2 id="letterTitle">Gửi bạn thương,</h2>
+            <div id="letterBody">
+              <p>Mình đã muốn viết cho bạn vài dòng từ lâu rồi.</p>
+              <p>Cảm ơn bạn vì đã xuất hiện và làm những ngày bình thường trở nên đặc biệt hơn. Mong rằng khi đọc được lá thư này, bạn sẽ mỉm cười một chút nhé.</p>
+              <p>Chúc bạn luôn có thật nhiều niềm vui, bình yên và những điều dịu dàng trên hành trình của mình.</p>
+            </div>
+            <p class="signature" id="letterSignature">Thương mến,<br>một người luôn nghĩ đến bạn ♡</p>
+          </div>
+        </article>
+
+        <div class="front-pocket"></div>
+        <div class="flap"></div>
+        <div class="seal" aria-hidden="true">♥</div>
+      </div>
+    </section>
+
+    <p class="hint" id="hint">CHẠM VÀO PHONG BÌ ĐỂ MỞ THƯ</p>
+    <div class="actions">
+      <button class="primary" id="openButton" type="button">Mở lá thư ♡</button>
+      <button id="closeButton" type="button">Gấp thư lại</button>
+    </div>
+    <p class="footer">made with a little love & lots of care ✧</p>
+  </main>
+
+  <script>
+    /*
+      ✉️ CHỈNH NỘI DUNG LÁ THƯ TẠI ĐÂY:
+      - title: lời chào ở đầu thư
+      - paragraphs: từng đoạn nội dung (mỗi phần tử là một đoạn)
+      - signature: chữ ký cuối thư
+      Bạn có thể dùng dấu tiếng Việt bình thường.
+    */
+    const LETTER = {
+      title: "Gửi bạn thương,",
+      paragraphs: [
+        "Mình đã muốn viết cho bạn vài dòng từ lâu rồi.",
+        "Cảm ơn bạn vì đã xuất hiện và làm những ngày bình thường trở nên đặc biệt hơn. Mong rằng khi đọc được lá thư này, bạn sẽ mỉm cười một chút nhé.",
+        "Chúc bạn luôn có thật nhiều niềm vui, bình yên và những điều dịu dàng trên hành trình của mình."
+      ],
+      signature: "Thương mến,\nmột người luôn nghĩ đến bạn ♡"
+    };
+
+    // Đổ nội dung từ phần LETTER ở trên vào lá thư.
+    document.getElementById("letterTitle").textContent = LETTER.title;
+    const body = document.getElementById("letterBody");
+    body.replaceChildren();
+    LETTER.paragraphs.forEach((paragraph) => {
+      const p = document.createElement("p");
+      p.textContent = paragraph;
+      body.appendChild(p);
+    });
+    document.getElementById("letterSignature").textContent = LETTER.signature;
+
+    const envelope = document.getElementById("envelope");
+    const hint = document.getElementById("hint");
+    const openButton = document.getElementById("openButton");
+    const closeButton = document.getElementById("closeButton");
+    let isOpen = false;
+    let heartsStarted = false;
+
+    function makeHearts() {
+      for (let i = 0; i < 9; i++) {
+        setTimeout(() => {
+          const heart = document.createElement("span");
+          heart.className = "floating-heart";
+          heart.textContent = ["♡", "♥", "✧"][Math.floor(Math.random() * 3)];
+          heart.style.left = (5 + Math.random() * 90) + "vw";
+          heart.style.fontSize = (13 + Math.random() * 17) + "px";
+          heart.style.animationDuration = (4 + Math.random() * 2) + "s";
+          document.body.appendChild(heart);
+          heart.addEventListener("animationend", () => heart.remove(), { once: true });
+        }, i * 170);
+      }
+    }
+
+    function setOpen(nextState) {
+      isOpen = nextState;
+      envelope.classList.toggle("open", isOpen);
+      envelope.setAttribute("aria-expanded", String(isOpen));
+      hint.textContent = isOpen ? "MỘT LÁ THƯ NHỎ, DÀNH RIÊNG CHO BẠN ♡" : "CHẠM VÀO PHONG BÌ ĐỂ MỞ THƯ";
+      openButton.textContent = isOpen ? "Đọc thư ♡" : "Mở lá thư ♡";
+      if (isOpen && !heartsStarted) {
+        heartsStarted = true;
+        makeHearts();
+      }
+    }
+
+    envelope.addEventListener("click", () => setOpen(!isOpen));
+    envelope.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        setOpen(!isOpen);
+      }
+    });
+    openButton.addEventListener("click", () => setOpen(true));
+    closeButton.addEventListener("click", () => setOpen(false));
+  </script>
+</body>
+</html>
